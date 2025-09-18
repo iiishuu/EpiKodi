@@ -1,0 +1,4 @@
+/home/iishu/Epitech/Year3/EpiKodi/build/CMakeFiles/epikodi.dir
+/home/iishu/Epitech/Year3/EpiKodi/build/CMakeFiles/test.dir
+/home/iishu/Epitech/Year3/EpiKodi/build/CMakeFiles/edit_cache.dir
+/home/iishu/Epitech/Year3/EpiKodi/build/CMakeFiles/rebuild_cache.dir
