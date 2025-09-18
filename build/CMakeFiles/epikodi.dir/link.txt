@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/epikodi.dir/src/core/app.cpp.o CMakeFiles/epikodi.dir/src/core/menu.cpp.o CMakeFiles/epikodi.dir/src/main.cpp.o CMakeFiles/epikodi.dir/src/media/folder_parser.cpp.o CMakeFiles/epikodi.dir/src/media/media_file.cpp.o CMakeFiles/epikodi.dir/src/media/player.cpp.o CMakeFiles/epikodi.dir/src/ui/ui_manager.cpp.o -o bin/epikodi 
