@@ -9,6 +9,8 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <fstream>
+#include <filesystem>
 
 namespace epikodi {
     Player::Player() : currentState(State::STOPPED) {
@@ -23,8 +25,23 @@ namespace epikodi {
     Player::~Player() {}
 
     void Player::play(const std::string &file) {
-        // Check format support first
+        // Check if file exists
+        if (!std::filesystem::exists(file)) {
+            currentState = State::ERROR;
+            if (errorCallback) errorCallback("File not found: " + file);
+            return;
+        }
+
+        // Check if file is corrupted
+        if (isFileCorrupted(file)) {
+            currentState = State::ERROR;
+            if (errorCallback) errorCallback("File corrupted: " + file);
+            return;
+        }
+        
+        // Check format support
         if (!canPlayFile(file)) {
+            currentState = State::ERROR;
             if (errorCallback) errorCallback("Unsupported format: " + file);
             return;
         }
@@ -89,5 +106,22 @@ namespace epikodi {
     
     std::string Player::getSupportedFormats() {
         return "Supported: MP4, AVI, MKV, MOV, WMV, MP3, WAV, OGG";
+    }
+    
+    bool Player::isFileCorrupted(const std::string &file) {
+        std::ifstream fileStream(file, std::ios::binary);
+        if (!fileStream.is_open()) {
+            return true; // Can't open = corrupted
+        }
+        
+        // Basic corruption check - file should have some content
+        fileStream.seekg(0, std::ios::end);
+        std::streamsize fileSize = fileStream.tellg();
+        
+        if (fileSize < 50) { // Files smaller than 50 bytes suspicious
+            return true;
+        }
+        
+        return false; // File seems OK
     }
 }
