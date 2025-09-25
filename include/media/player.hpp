@@ -17,7 +17,8 @@ namespace epikodi {
         enum class State {
             STOPPED,
             PLAYING,
-            PAUSED
+            PAUSED,
+            ERROR
         };
 
     private:
@@ -42,6 +43,7 @@ namespace epikodi {
         
         // Test de codec/format
         bool canPlayFile(const std::string &file);
+        bool isFileCorrupted(const std::string &file);
         std::string getSupportedFormats();
     };
 }
