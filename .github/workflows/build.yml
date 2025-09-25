@@ -1,0 +1,60 @@
+name: 🎬 EpiKodi CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential cmake \
+          qtmultimedia5-dev libqt5multimedia5-plugins \
+          qt5-qmake qtbase5-dev
+        
+    - name: 🏗️ Configure CMake
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+        
+    - name: 🔨 Build
+      run: |
+        cd build
+        make -j$(nproc)
+        
+    - name: 🧪 Test build artifacts
+      run: |
+        ls -la build/bin/
+        file build/bin/epikodi
+        file build/bin/epikodi_console
+        
+  build-info:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 📊 Project Stats
+      run: |
+        echo "📁 Project Structure:"
+        find . -type f -name "*.cpp" -o -name "*.hpp" | head -20
+        echo ""
+        echo "📈 Code Statistics:"
+        find . -name "*.cpp" -o -name "*.hpp" | xargs wc -l | tail -1
+        echo ""
+        echo "🎯 Features:"
+        echo "- Qt5 GUI Interface"
+        echo "- Console Fallback"  
+        echo "- Multi-format Media Support"
+        echo "- Smart Type Detection"

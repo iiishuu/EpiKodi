@@ -1,11 +1,26 @@
 # Prerequisites
 *.d
 
+# Build directories
+build/
+build-*/
+*build*/
+
+# Generated files
+*_autogen/
+*.moc
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+
 # Compiled Object files
 *.slo
 *.lo
 *.o
 *.obj
+*.ko
+*.elf
 
 # Precompiled Headers
 *.gch
@@ -39,3 +54,62 @@
 
 # debug information files
 *.dwo
+
+# CMake
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+# Qt-specific
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+*.moc.cpp
+*.qm
+*.prl
+
+# Qt Creator
+CMakeLists.txt.user*
+*.autosave
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Large media files (keep structure but ignore heavy files)
+assets/*.mp4
+assets/*.avi
+assets/*.mkv
+assets/*.mov
+assets/*.wmv
+assets/*.mp3
+assets/*.wav
+assets/*.flac
+# Keep small test images
+!assets/test*.png
+!assets/test*.jpg
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
