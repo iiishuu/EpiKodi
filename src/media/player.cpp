@@ -23,11 +23,21 @@ namespace epikodi {
     Player::~Player() {}
 
     void Player::play(const std::string &file) {
-        if (statusCallback) statusCallback("Playing: " + file);
-        
+        // Check format support first
         if (!canPlayFile(file)) {
             if (errorCallback) errorCallback("Unsupported format: " + file);
             return;
+        }
+        
+        currentState = State::PLAYING;
+        if (statusCallback) statusCallback("Playing: " + file);
+        
+        // Specific messages for different formats
+        std::string ext = file.substr(file.find_last_of('.'));
+        if (ext == ".mp3" || ext == ".wav") {
+            if (statusCallback) statusCallback("Audio playback started");
+        } else if (ext == ".mp4") {
+            if (statusCallback) statusCallback("Video playback started");
         }
     }
 
