@@ -13,9 +13,17 @@
 
 namespace epikodi {
     class Player {
+    public:
+        enum class State {
+            STOPPED,
+            PLAYING,
+            PAUSED
+        };
+
     private:
         std::function<void(const std::string&)> errorCallback;
         std::function<void(const std::string&)> statusCallback;
+        State currentState;
         
     public:
         Player();
@@ -24,6 +32,9 @@ namespace epikodi {
         void play(const std::string &file);
         void pause();
         void stop();
+        void next();
+        
+        State getState() const;
         
         // Callbacks pour les erreurs et status
         void setErrorCallback(std::function<void(const std::string&)> callback);
