@@ -1,22 +1,90 @@
 cmake_minimum_required(VERSION 3.16)
 project(EpiKodi LANGUAGES CXX)
 
-# Version du standard C++
+# --- Standard C++ ---
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Options de build
+# --- Qt setup (Qt6) ---
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+# Try Qt6 first, fallback to Qt5
+find_package(Qt6 COMPONENTS Core Widgets Multimedia MultimediaWidgets QUIET)
+if (Qt6_FOUND)
+    message(STATUS "Using Qt6")
+    set(QT_VERSION_MAJOR 6)
+else()
+    find_package(Qt5 COMPONENTS Core Widgets Multimedia MultimediaWidgets REQUIRED)
+    message(STATUS "Using Qt5")
+    set(QT_VERSION_MAJOR 5)
+endif()
+
+# --- Output dir ---
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# Dossiers include
+# --- Includes ---
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-# Fichiers sources
-file(GLOB_RECURSE SOURCES src/*.cpp)
+# --- Sources ---
+file(GLOB_RECURSE CORE_SOURCES 
+    src/core/*.cpp
+    src/media/*.cpp
+    src/ui/qt_ui.cpp
+)
 
-# Exécutable principal
-add_executable(epikodi ${SOURCES})
+# --- Executable principal (Qt) ---
+add_executable(epikodi ${CORE_SOURCES} src/main.cpp)
 
-# Tests (placeholder pour plus tard)
-enable_testing()
+# --- Executable console ---
+file(GLOB_RECURSE CONSOLE_SOURCES 
+    src/core/*.cpp
+    src/media/*.cpp
+    src/ui/console_ui.cpp
+)
+add_executable(epikodi_console ${CONSOLE_SOURCES} src/main_console.cpp)
+
+# --- Link Qt libs ---
+if(QT_VERSION_MAJOR EQUAL 6)
+    target_link_libraries(epikodi
+        Qt6::Core
+        Qt6::Widgets
+        Qt6::Multimedia
+        Qt6::MultimediaWidgets
+    )
+else()
+    target_link_libraries(epikodi
+        Qt5::Core
+        Qt5::Widgets
+        Qt5::Multimedia
+        Qt5::MultimediaWidgets
+    )
+endif()
+
+# --- Console version (no Qt dependencies) ---
+# La version console n'a pas besoin de Qt
+
+# --- Custom target: rebuild (clean + cmake + build) ---
+add_custom_target(rebuild
+    COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}
+    COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_BINARY_DIR} ${CMAKE_COMMAND} ..
+    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
+# --- Custom target: run (execute from project root) ---
+add_custom_target(run
+    COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}/bin/epikodi
+    DEPENDS epikodi
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
+# --- Combined target: build + run ---
+add_custom_target(build_and_run
+    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target epikodi
+    COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}/bin/epikodi
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
