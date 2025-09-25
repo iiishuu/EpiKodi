@@ -11,7 +11,7 @@
 #include <vector>
 
 namespace epikodi {
-    Player::Player() {
+    Player::Player() : currentState(State::STOPPED) {
         statusCallback = [](const std::string& msg) {
             std::cout << "[Player] " << msg << std::endl;
         };
@@ -32,11 +32,26 @@ namespace epikodi {
     }
 
     void Player::pause() {
-        if (statusCallback) statusCallback("Paused");
+        if (currentState == State::PLAYING) {
+            currentState = State::PAUSED;
+            if (statusCallback) statusCallback("Paused");
+        } else if (currentState == State::PAUSED) {
+            currentState = State::PLAYING;
+            if (statusCallback) statusCallback("Resumed");
+        }
     }
 
     void Player::stop() {
+        currentState = State::STOPPED;
         if (statusCallback) statusCallback("Stopped");
+    }
+    
+    void Player::next() {
+        if (statusCallback) statusCallback("Next track");
+    }
+    
+    Player::State Player::getState() const {
+        return currentState;
     }
     
     void Player::setErrorCallback(std::function<void(const std::string&)> callback) {
