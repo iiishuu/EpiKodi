@@ -1,140 +1,129 @@
-# 🎬 EpiKodi - Media Center
+# EpiKodi
 
-A modern media center application inspired by Kodi, built with Qt5/C++17.
-*Simplified reimplementation of Kodi (C++ media center project for B-PRO-500)*
+**EpiKodi** is a media center application developed as part of the Epitech simulated work experience during my 3rd year. This project aims to reproduce the core functionality of the Kodi media platform, demonstrating proficiency in C++17, Qt framework, and software architecture principles.
 
-## 📋 Features
+## Project Context
 
-### ✨ Core Functionality
-- **🎥 Multi-format Media Support**: Video (MP4, AVI, MKV, MOV, WMV), Audio (MP3, WAV, OGG, FLAC), Images (JPG, PNG, GIF, BMP)
-- **🖼️ Smart Media Handling**: Automatic type detection with appropriate display/playback
-- **📁 Directory Scanning**: Recursive media file discovery with intelligent filtering
-- **🎯 Dual Interface**: Qt GUI and console fallback for different environments
+**Academic Framework**: Epitech Year 3 - Simulated Work Experience  
+**Project Type**: Media Center Application  
+**Inspiration**: Kodi Media Center Platform  
+**Development Period**: 2025  
+**Technologies**: C++17, Qt5/Qt6, CMake, GStreamer
 
-### 🎮 User Interface
-- **Modern Qt5 GUI**: Dark theme with intuitive media center styling
-- **📱 Responsive Layout**: Adaptive interface with media library sidebar and preview area
-- **⌨️ Keyboard Navigation**: Full keyboard control (arrows, enter, space, escape)
-- **🖱️ Mouse Support**: Click and double-click interactions
-- **📊 Rich Media Info**: File type indicators, size formatting, and detailed metadata
+## Project Objectives
 
-### 🔧 Technical Features
-- **🏗️ Clean Architecture**: Separation of UI, media handling, and core logic
-- **🔄 Cross-platform**: Linux/WSL support with Windows compatibility layer
-- **🎯 Error Handling**: Comprehensive error messages and graceful fallbacks
-- **📦 Modular Design**: Pluggable UI components (Qt, Console)
+This project demonstrates the following technical competencies:
 
-## 🚀 Quick Start
+### Software Architecture
+- **Modular Design**: Separation between UI, media handling, and core logic
+- **Interface Abstraction**: Multiple UI implementations (Qt GUI, Console)
+- **Extensible Framework**: Easy addition of new features and components
+
+### Media Processing
+- **Multi-format Support**: Video, audio, and image file handling
+- **Metadata Extraction**: File type detection and information display
+- **Playback Integration**: Qt Multimedia framework integration
+
+### User Experience
+- **Intuitive Navigation**: Keyboard and mouse interaction patterns
+- **Responsive Interface**: Adaptive layouts and error handling
+- **Cross-platform Compatibility**: Linux/WSL support with future Windows expansion
+
+## Technical Implementation
+
+### Core Components
+- **MediaFile**: File representation with type detection and metadata
+- **FolderParser**: Recursive directory scanning and media discovery
+- **Player**: Abstract playback interface with callback system
+- **QtUI**: Full-featured GUI with media library and playback controls
+- **ConsoleUI**: Terminal-based fallback interface
+
+### Build System
+- **CMake Configuration**: Multi-target builds with Qt version detection
+- **Dependency Management**: Automated library detection and linking
+- **Platform Support**: Linux/Ubuntu with WSL compatibility
+
+## Documentation
+
+Comprehensive documentation is available in the `docs/` folder:
+
+- **[User Guide](docs/USER_GUIDE.md)**: Complete user manual with interface overview, navigation controls, and troubleshooting
+- **[Technical Guide](docs/TECHNICAL_GUIDE.md)**: Developer documentation covering architecture, code structure, and implementation details
+
+## Quick Start
 
 ### Prerequisites
-- **C++17** compatible compiler
-- **Qt5** development libraries
-- **CMake 3.16+**
-
-#### Ubuntu/Debian Installation
 ```bash
-sudo apt update
-sudo apt install -y build-essential cmake qtmultimedia5-dev \
-    libqt5multimedia5-plugins qt5-qmake qtbase5-dev \
-    gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
-    gstreamer1.0-libav ubuntu-restricted-extras
+# Ubuntu/Debian
+sudo apt install build-essential cmake qtmultimedia5-dev \
+    libqt5multimedia5-plugins gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-ugly gstreamer1.0-libav
 ```
 
-### Build & Run
+### Build and Run
 ```bash
-# Clone and navigate
-git clone https://github.com/iiishuu/EpiKodi.git
-cd EpiKodi
-
-# Build
+# Build the project
 mkdir build && cd build
 cmake ..
 make -j$(nproc)
 
-# Add your media files
+# Add media files
 mkdir -p ../assets
 # Place your videos, audio, and images in the assets/ folder
 
-# Run Qt GUI version
+# Launch GUI version
 ./bin/epikodi
 
-# Or run console version
+# Or launch console version
 ./bin/epikodi_console
 ```
 
-## 🎯 Usage
+## Supported Media Formats
 
-### Qt GUI Version
-- **Navigation**: Use ⬆️⬇️ arrow keys or mouse to browse media
-- **Play/View**: Press `Enter` or double-click to play/view selected media
-- **Playback Control**: 
-  - `Space`: Play/Pause (video/audio)
-  - `Escape`: Stop playback
-- **Media Info**: Detailed information displayed in the sidebar
+| Type | Extensions | Features |
+|------|------------|----------|
+| **Video** | MP4, AVI, MKV, MOV, WMV, WebM | Full playback with controls |
+| **Audio** | MP3, WAV, OGG, FLAC, AAC | Background playback |
+| **Images** | JPG, PNG, GIF, BMP, TIFF | Direct viewing |
 
-### Console Version
-- **Select Media**: Type the number (1-9) to launch media with system player
-- **Commands**: 
-  - `l` or `list`: Show media library
-  - `h` or `help`: Display help
-  - `q` or `quit`: Exit application
+## Skills Demonstrated
 
-## 📁 Project Structure
+### Programming Languages & Frameworks
+- **C++17**: Modern C++ features, RAII, smart pointers
+- **Qt5/Qt6**: GUI development, multimedia integration
+- **CMake**: Build system configuration and dependency management
 
-```
-EpiKodi/
-├── 📂 assets/                 # Media files directory
-├── 📂 include/               # Header files
-│   ├── 📂 core/              # Core application logic
-│   ├── 📂 media/             # Media handling components
-│   └── 📂 ui/                # User interface components
-├── 📂 src/                   # Source files
-│   ├── 📂 core/              # App, Menu implementations
-│   ├── 📂 media/             # MediaFile, Player, FolderParser
-│   ├── 📂 ui/                # QtUI, ConsoleUI implementations
-│   ├── 📄 main.cpp           # Qt GUI entry point
-│   └── 📄 main_console.cpp   # Console entry point
-├── 📂 build/                 # Build artifacts
-├── 📂 docs/                  # Documentation
-├── 📂 tests/                 # Unit tests
-└── 📄 CMakeLists.txt         # Build configuration
-```
+### Software Engineering
+- **Design Patterns**: Observer pattern, Strategy pattern, Factory pattern
+- **Error Handling**: Exception safety, graceful degradation
+- **Testing**: Unit tests, integration testing strategies
 
-## 🎨 Interface
+### System Integration
+- **Linux Development**: Filesystem APIs, process management
+- **Multimedia Frameworks**: GStreamer integration, codec handling
+- **Cross-platform Design**: Abstraction layers, platform-specific implementations
 
-### Qt GUI Interface
-- **Media Library**: Clean sidebar with file type icons and metadata
-- **Playback Area**: Dedicated video player with image viewer
-- **Controls**: Intuitive media controls and status information
+## Academic Context
 
-### Console Interface
-- **File Browser**: Numbered list with media type and size information
-- **System Integration**: Launches files with appropriate system applications
+This project fulfills the requirements of the Epitech simulated work experience by:
 
-## 🔧 Development
+1. **Demonstrating Technical Proficiency**: Advanced C++ programming with modern frameworks
+2. **Showing Architectural Thinking**: Clean, modular design with separation of concerns
+3. **Implementing User-Centered Design**: Intuitive interfaces with comprehensive error handling
+4. **Following Industry Standards**: Professional documentation, version control, and testing practices
 
-### Architecture Overview
-- **Core**: Application logic and media processing
-- **Media**: File handling, parsing, and metadata extraction
-- **UI**: Modular interface system supporting multiple frontends
+## Future Enhancements
 
-### Supported Formats
-| Type  | Extensions | Description |
-|-------|------------|-------------|
-| 🎥 Video | .mp4, .avi, .mkv, .mov, .wmv, .flv, .webm, .m4v | Full playback support |
-| 🎵 Audio | .mp3, .wav, .ogg, .flac, .aac, .m4a, .wma | Audio playback |
-| 🖼️ Images | .jpg, .jpeg, .png, .gif, .bmp, .tiff, .webp | Direct display |
-
-## 🐛 Troubleshooting
-
-### WSL/Linux Issues
-- **Audio crackling**: Normal in WSL environment due to virtualization
-- **No GUI display**: Ensure `DISPLAY` variable is set (`export DISPLAY=:0`)
-- **Missing codecs**: Install `ubuntu-restricted-extras` package
-
-## 📝 License
-
-This project is part of the Epitech curriculum (2025).
+Planned improvements include:
+- **Playlist Management**: Create and manage media playlists
+- **Network Streaming**: Support for remote media sources
+- **Plugin System**: Extensible architecture for third-party plugins
+- **Advanced UI Themes**: Customizable interface themes and layouts
 
 ---
-*Built with ❤️ using Qt5, C++17, and CMake*
+
+**Repository**: https://github.com/iiishuu/EpiKodi  
+**Author**: Student at Epitech (Year 3)  
+**Academic Year**: 2024-2025
+
+*This project represents practical application of software engineering principles learned during the Epitech curriculum, with emphasis on modern C++ development and user interface design.*
