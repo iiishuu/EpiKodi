@@ -13,22 +13,16 @@ int main(int argc, char **argv) {
     (void)argc; // Évite les warnings unused
     (void)argv;
     
-    std::cout << "🎬 EpiKodi Console - Démarrage..." << std::endl;
+    std::cout << "EpiKodi Console - Demarrage..." << std::endl;
     
     epikodi::ConsoleUI ui;
     ui.openWindow("EpiKodi Console");
 
     auto files = epikodi::FolderParser::listFiles("assets");
-    
-    // Création de la liste des infos détaillées
-    std::vector<std::string> fileInfos;
-    for (const auto &f : files) {
-        fileInfos.push_back(f.getInfo());
-    }
 
-    std::cout << "🚀 Interface console lancée avec " << files.size() << " fichier(s)" << std::endl;
+    std::cout << "Interface console lancee avec " << files.size() << " fichier(s)" << std::endl;
     
-    ui.showMenu(fileInfos);
+    ui.showMenu(files);
     ui.closeWindow();
 
     return 0;
