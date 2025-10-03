@@ -28,23 +28,24 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # --- Includes ---
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-# --- Sources ---
-file(GLOB_RECURSE CORE_SOURCES 
-    src/core/*.cpp
+# --- Sources (architecture modulaire) ---
+file(GLOB_RECURSE SOURCES
+    src/core/menu.cpp
+    src/core/app_controller.cpp  
     src/media/*.cpp
-    src/ui/qt_ui.cpp
+    src/ui/*.cpp
+    src/components/*.cpp
 )
 
-# --- Executable principal (Qt) ---
-add_executable(epikodi ${CORE_SOURCES} src/main.cpp)
+# --- Executable principal ---
+add_executable(epikodi ${SOURCES} src/main.cpp)
 
-# --- Executable console ---
+# --- Executable console (tests) ---
 file(GLOB_RECURSE CONSOLE_SOURCES 
-    src/core/*.cpp
+    src/core/menu.cpp
     src/media/*.cpp
-    src/ui/console_ui.cpp
 )
-add_executable(epikodi_console ${CONSOLE_SOURCES} src/main_console.cpp)
+# add_executable(epikodi_console ${CONSOLE_SOURCES} tests/test_main.cpp)  # Désactivé pour l'instant
 
 # --- Link Qt libs ---
 if(QT_VERSION_MAJOR EQUAL 6)
@@ -63,8 +64,8 @@ else()
     )
 endif()
 
-# --- Console version (no Qt dependencies) ---
-# La version console n'a pas besoin de Qt
+# --- Console version (désactivée) ---
+# La version console sera réactivée plus tard si nécessaire
 
 # --- Custom target: rebuild (clean + cmake + build) ---
 add_custom_target(rebuild
@@ -75,7 +76,7 @@ add_custom_target(rebuild
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-# --- Custom target: run (execute from project root) ---
+# --- Custom target: run ---
 add_custom_target(run
     COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}/bin/epikodi
     DEPENDS epikodi
