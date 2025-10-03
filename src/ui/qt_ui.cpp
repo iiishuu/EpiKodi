@@ -16,13 +16,19 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QSplitter>
+#include <QPushButton>
+#include <QStackedWidget>
+#include <QGridLayout>
 
 namespace epikodi {
 
 QtUI::QtUI(int &argc, char **argv)
-    : app(argc, argv), window(nullptr), listWidget(nullptr),
-      player(nullptr), videoWidget(nullptr), infoLabel(nullptr), 
-      imageLabel(nullptr), rightPanel(nullptr) {}
+    : app(argc, argv), window(nullptr), menuWidget(nullptr),
+      videoBtn(nullptr), audioBtn(nullptr), imageBtn(nullptr),
+      contentStack(nullptr), videoPage(nullptr), audioPage(nullptr),
+      imagePage(nullptr), listWidget(nullptr), player(nullptr),
+      videoWidget(nullptr), infoLabel(nullptr), imageLabel(nullptr),
+      rightPanel(nullptr) {}
 
 QtUI::~QtUI() {
     delete player;
@@ -32,206 +38,50 @@ QtUI::~QtUI() {
 void QtUI::openWindow(const std::string &title) {
     window = new QMainWindow();
     window->setWindowTitle(QString::fromStdString(title));
-    window->resize(1200, 800);
+    window->resize(1400, 900);
+
+    // Applique le thème Epitech
+    applyEpitechTheme();
 
     QWidget *central = new QWidget(window);
-    QHBoxLayout *mainLayout = new QHBoxLayout(central);
-    
-    // Splitter principal
-    QSplitter *splitter = new QSplitter(Qt::Horizontal, central);
-    
-    // --- Zone de gauche : Liste des médias ---
-    QWidget *leftPanel = new QWidget();
-    leftPanel->setMaximumWidth(400);
-    leftPanel->setMinimumWidth(300);
-    
-    QVBoxLayout *leftLayout = new QVBoxLayout(leftPanel);
-    
-    // Titre de la liste
-    QLabel *listTitle = new QLabel("📁 Bibliothèque Multimédia");
-    listTitle->setStyleSheet("font-size: 14px; font-weight: bold; padding: 8px;");
-    leftLayout->addWidget(listTitle);
-    
-    // Liste des fichiers
-    listWidget = new QListWidget();
-    listWidget->setStyleSheet(
-        "QListWidget {"
-        "  background-color: #2b2b2b;"
-        "  color: white;"
-        "  font-size: 12px;"
-        "  selection-background-color: #3d7eff;"
-        "  border: 1px solid #555;"
-        "}"
-        "QListWidget::item {"
-        "  padding: 8px;"
-        "  border-bottom: 1px solid #444;"
-        "}"
-        "QListWidget::item:hover {"
-        "  background-color: #404040;"
-        "}"
-    );
-    leftLayout->addWidget(listWidget);
-    
-    // Zone d'info sur le fichier sélectionné
-    infoLabel = new QLabel("Sélectionnez un fichier pour voir les détails");
-    infoLabel->setWordWrap(true);
-    infoLabel->setStyleSheet(
-        "padding: 12px; "
-        "background-color: #1e1e1e; "
-        "color: #ccc; "
-        "border: 1px solid #555; "
-        "border-radius: 4px;"
-    );
-    infoLabel->setMaximumHeight(120);
-    leftLayout->addWidget(infoLabel);
-    
-    splitter->addWidget(leftPanel);
-    
-    // --- Zone de droite : Lecture ---
-    rightPanel = new QWidget();
-    QVBoxLayout *rightLayout = new QVBoxLayout(rightPanel);
-    
-    // Zone vidéo
-    videoWidget = new QVideoWidget();
-    videoWidget->setStyleSheet("background-color: black; border: 2px solid #555;");
-    rightLayout->addWidget(videoWidget);
-    
-    // Zone image (cachée par défaut)
-    imageLabel = new QLabel();
-    imageLabel->setAlignment(Qt::AlignCenter);
-    imageLabel->setStyleSheet("background-color: black; border: 2px solid #555; color: white;");
-    imageLabel->setText("Sélectionnez une image pour l'afficher");
-    imageLabel->setMinimumSize(400, 300);
-    imageLabel->setScaledContents(false); // On gère manuellement le redimensionnement
-    imageLabel->hide(); // Caché par défaut
-    rightLayout->addWidget(imageLabel);
-    
-    // Contrôles de lecture
-    QWidget *controlsWidget = new QWidget();
-    QHBoxLayout *controlsLayout = new QHBoxLayout(controlsWidget);
-    
-    QPushButton *playBtn = new QPushButton("▶️ Play");
-    QPushButton *pauseBtn = new QPushButton("⏸️ Pause");
-    QPushButton *stopBtn = new QPushButton("⏹️ Stop");
-    
-    // Style des boutons
-    QString btnStyle = 
-        "QPushButton { "
-        "  padding: 8px 16px; "
-        "  font-size: 12px; "
-        "  background-color: #3d7eff; "
-        "  color: white; "
-        "  border: none; "
-        "  border-radius: 4px; "
-        "} "
-        "QPushButton:hover { "
-        "  background-color: #4a8fff; "
-        "} "
-        "QPushButton:pressed { "
-        "  background-color: #2a6eef; "
-        "}";
-    
-    playBtn->setStyleSheet(btnStyle);
-    pauseBtn->setStyleSheet(btnStyle);
-    stopBtn->setStyleSheet(btnStyle);
-    
-    controlsLayout->addWidget(playBtn);
-    controlsLayout->addWidget(pauseBtn);
-    controlsLayout->addWidget(stopBtn);
-    controlsLayout->addStretch();
-    
-    rightLayout->addWidget(controlsWidget);
-    splitter->addWidget(rightPanel);
-    
-    // Configuration du splitter
-    splitter->setStretchFactor(0, 0);
-    splitter->setStretchFactor(1, 1);
-    
-    mainLayout->addWidget(splitter);
+    QVBoxLayout *mainLayout = new QVBoxLayout(central);
+    mainLayout->setSpacing(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    // Player
-    player = new QMediaPlayer(window);
-    player->setVideoOutput(videoWidget);
-    
-    // Connexions des boutons
-    QObject::connect(playBtn, &QPushButton::clicked, [this]() {
-        if (player->state() != QMediaPlayer::PlayingState) {
-            player->play();
-        }
-    });
-    
-    QObject::connect(pauseBtn, &QPushButton::clicked, [this]() {
-        player->pause();
-    });
-    
-    QObject::connect(stopBtn, &QPushButton::clicked, [this]() {
-        player->stop();
-    });
-    
-    // Gestion des erreurs de QMediaPlayer
-    QObject::connect(player, QOverload<QMediaPlayer::Error>::of(&QMediaPlayer::error),
-        [this](QMediaPlayer::Error error) {
-            QString errorString = player->errorString();
-            QMessageBox::critical(window, "Erreur Media Player", 
-                "Erreur: " + errorString + "\n\n" +
-                "Solutions possibles:\n" +
-                "1. Vérifiez que les codecs sont installés\n" +
-                "2. Testez avec un autre format vidéo\n" +
-                "3. Utilisez une solution alternative (VLC, mpv)");
-            qDebug() << "Media player error:" << error << errorString;
-        });
+    // Crée le menu principal
+    createMainMenu();
+    mainLayout->addWidget(menuWidget);
 
-    // Status du player
-    QObject::connect(player, &QMediaPlayer::stateChanged,
-        [this](QMediaPlayer::State state) {
-            QString statusText;
-            switch (state) {
-                case QMediaPlayer::PlayingState: statusText = "▶️ Lecture en cours"; break;
-                case QMediaPlayer::PausedState: statusText = "⏸️ En pause"; break;
-                case QMediaPlayer::StoppedState: statusText = "⏹️ Arrêté"; break;
-            }
-            qDebug() << "Player state:" << statusText;
-            window->statusBar()->showMessage(statusText);
-        });
-
-    // Sélection d'un fichier -> mise à jour infos
-    QObject::connect(listWidget, &QListWidget::currentItemChanged,
-        [this](QListWidgetItem *current, QListWidgetItem *previous) {
-            Q_UNUSED(previous);
-            if (current) {
-                // Récupère le vrai nom de fichier depuis les data
-                QString fileName = current->data(Qt::UserRole).toString();
-                if (!fileName.isEmpty()) {
-                    updateFileInfo(fileName);
-                }
-            }
-        });
-
-    // Double-clic ou Entrée -> jouer
-    QObject::connect(listWidget, &QListWidget::itemActivated,
-        [this](QListWidgetItem *item) {
-            // Récupère le vrai nom de fichier depuis les data
-            QString fileName = item->data(Qt::UserRole).toString();
-            if (!fileName.isEmpty()) {
-                playSelectedFile(fileName);
-            }
-        });
+    // Crée le conteneur pour les différentes sections
+    contentStack = new QStackedWidget();
     
-    // Installation du filtre d'événements pour la navigation clavier
-    listWidget->installEventFilter(this);
+    // Crée les pages pour chaque section
+    createVideoPage();
+    createAudioPage();
+    createImagePage();
+    
+    contentStack->addWidget(videoPage);
+    contentStack->addWidget(audioPage);
+    contentStack->addWidget(imagePage);
+    
+    mainLayout->addWidget(contentStack, 1); // stretch factor 1 pour prendre l'espace restant
 
     central->setLayout(mainLayout);
     window->setCentralWidget(central);
     
-    // Style général de la fenêtre
-    window->setStyleSheet(
-        "QMainWindow { background-color: #1a1a1a; }"
-        "QLabel { color: #fff; }"
+    // Status bar Epitech
+    window->statusBar()->showMessage("EpiKodi v2.0 - Ready");
+    window->statusBar()->setStyleSheet(
+        "QStatusBar { "
+        "  background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #1e3a8a, stop:1 #3b82f6); "
+        "  color: white; "
+        "  padding: 4px; "
+        "  border-top: 2px solid #60a5fa; "
+        "}"
     );
     
-    // Status bar pour afficher les infos
-    window->statusBar()->showMessage("🎬 EpiKodi - Prêt");
-    window->statusBar()->setStyleSheet("color: #ccc; background-color: #2b2b2b; padding: 4px;");
+    // Démarre sur la section Vidéo
+    switchToSection("video");
     
     window->show();
 }
@@ -441,6 +291,319 @@ bool QtUI::eventFilter(QObject *obj, QEvent *event) {
     }
     
     return QObject::eventFilter(obj, event);
+}
+
+void QtUI::createMainMenu() {
+    menuWidget = new QWidget();
+    menuWidget->setFixedHeight(80);
+    
+    QHBoxLayout *menuLayout = new QHBoxLayout(menuWidget);
+    menuLayout->setSpacing(20);
+    menuLayout->setContentsMargins(20, 10, 20, 10);
+    
+    // Logo/Titre EpiKodi
+    QLabel *logo = new QLabel("EpiKodi");
+    logo->setStyleSheet(
+        "QLabel { "
+        "  font-size: 24px; "
+        "  font-weight: bold; "
+        "  color: #60a5fa; "
+        "  margin-right: 40px; "
+        "}"
+    );
+    menuLayout->addWidget(logo);
+    
+    // Style des boutons du menu principal
+    QString menuBtnStyle = 
+        "QPushButton { "
+        "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #3b82f6, stop:1 #1e40af); "
+        "  color: white; "
+        "  border: 2px solid #60a5fa; "
+        "  border-radius: 15px; "
+        "  font-size: 16px; "
+        "  font-weight: bold; "
+        "  padding: 15px 30px; "
+        "  min-width: 120px; "
+        "} "
+        "QPushButton:hover { "
+        "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #60a5fa, stop:1 #2563eb); "
+        "  border-color: #93c5fd; "
+        "} "
+        "QPushButton:pressed { "
+        "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1e40af, stop:1 #1e3a8a); "
+        "} "
+        "QPushButton:checked { "
+        "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1e40af, stop:1 #1e3a8a); "
+        "  border-color: #93c5fd; "
+        "}";
+    
+    // Boutons de navigation
+    videoBtn = new QPushButton("🎥 Vidéo");
+    videoBtn->setCheckable(true);
+    videoBtn->setStyleSheet(menuBtnStyle);
+    
+    audioBtn = new QPushButton("🎵 Audio");
+    audioBtn->setCheckable(true);
+    audioBtn->setStyleSheet(menuBtnStyle);
+    
+    imageBtn = new QPushButton("🖼️ Image");
+    imageBtn->setCheckable(true);
+    imageBtn->setStyleSheet(menuBtnStyle);
+    
+    // Connexions
+    QObject::connect(videoBtn, &QPushButton::clicked, [this]() { switchToSection("video"); });
+    QObject::connect(audioBtn, &QPushButton::clicked, [this]() { switchToSection("audio"); });
+    QObject::connect(imageBtn, &QPushButton::clicked, [this]() { switchToSection("image"); });
+    
+    menuLayout->addWidget(videoBtn);
+    menuLayout->addWidget(audioBtn);
+    menuLayout->addWidget(imageBtn);
+    menuLayout->addStretch(); // Pousse le contenu vers la gauche
+    
+    // Bouton paramètres (pour plus tard)
+    QPushButton *settingsBtn = new QPushButton("⚙️");
+    settingsBtn->setStyleSheet(
+        "QPushButton { "
+        "  background: transparent; "
+        "  color: #60a5fa; "
+        "  border: 2px solid #60a5fa; "
+        "  border-radius: 20px; "
+        "  font-size: 16px; "
+        "  padding: 10px; "
+        "  min-width: 40px; "
+        "  min-height: 40px; "
+        "} "
+        "QPushButton:hover { "
+        "  background: #60a5fa; "
+        "  color: white; "
+        "}"
+    );
+    menuLayout->addWidget(settingsBtn);
+}
+
+void QtUI::createVideoPage() {
+    videoPage = new QWidget();
+    QHBoxLayout *layout = new QHBoxLayout(videoPage);
+    
+    // Panel gauche pour la liste
+    QWidget *leftPanel = new QWidget();
+    leftPanel->setMaximumWidth(400);
+    leftPanel->setMinimumWidth(300);
+    
+    QVBoxLayout *leftLayout = new QVBoxLayout(leftPanel);
+    
+    QLabel *title = new QLabel("Bibliothèque Vidéo");
+    title->setStyleSheet(
+        "QLabel { "
+        "  font-size: 18px; "
+        "  font-weight: bold; "
+        "  color: #60a5fa; "
+        "  padding: 10px; "
+        "  border-bottom: 2px solid #3b82f6; "
+        "}"
+    );
+    leftLayout->addWidget(title);
+    
+    // Liste des vidéos (on réutilise listWidget)
+    listWidget = new QListWidget();
+    listWidget->setStyleSheet(
+        "QListWidget { "
+        "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1e3a8a, stop:1 #1e40af); "
+        "  color: white; "
+        "  border: 2px solid #3b82f6; "
+        "  border-radius: 10px; "
+        "  font-size: 14px; "
+        "  selection-background-color: #60a5fa; "
+        "} "
+        "QListWidget::item { "
+        "  padding: 12px; "
+        "  border-bottom: 1px solid #3b82f6; "
+        "} "
+        "QListWidget::item:hover { "
+        "  background-color: rgba(96, 165, 250, 0.3); "
+        "}"
+    );
+    leftLayout->addWidget(listWidget);
+    
+    layout->addWidget(leftPanel);
+    
+    // Panel droit pour la lecture
+    rightPanel = new QWidget();
+    QVBoxLayout *rightLayout = new QVBoxLayout(rightPanel);
+    
+    // Zone vidéo
+    videoWidget = new QVideoWidget();
+    videoWidget->setStyleSheet(
+        "QVideoWidget { "
+        "  background-color: black; "
+        "  border: 3px solid #3b82f6; "
+        "  border-radius: 10px; "
+        "}"
+    );
+    rightLayout->addWidget(videoWidget);
+    
+    // Zone image (cachée par défaut pour la page vidéo)
+    imageLabel = new QLabel();
+    imageLabel->setAlignment(Qt::AlignCenter);
+    imageLabel->setStyleSheet(
+        "QLabel { "
+        "  background-color: black; "
+        "  border: 3px solid #3b82f6; "
+        "  border-radius: 10px; "
+        "  color: white; "
+        "  font-size: 16px; "
+        "}"
+    );
+    imageLabel->setText("Sélectionnez une vidéo pour la lire");
+    imageLabel->setMinimumSize(400, 300);
+    imageLabel->hide();
+    rightLayout->addWidget(imageLabel);
+    
+    // Contrôles de lecture
+    QWidget *controlsWidget = new QWidget();
+    QHBoxLayout *controlsLayout = new QHBoxLayout(controlsWidget);
+    
+    QString controlBtnStyle = 
+        "QPushButton { "
+        "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #3b82f6, stop:1 #1e40af); "
+        "  color: white; "
+        "  border: 2px solid #60a5fa; "
+        "  border-radius: 8px; "
+        "  font-size: 14px; "
+        "  font-weight: bold; "
+        "  padding: 10px 20px; "
+        "} "
+        "QPushButton:hover { "
+        "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #60a5fa, stop:1 #2563eb); "
+        "} "
+        "QPushButton:pressed { "
+        "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #1e40af, stop:1 #1e3a8a); "
+        "}";
+    
+    QPushButton *playBtn = new QPushButton("▶️ Play");
+    QPushButton *pauseBtn = new QPushButton("⏸️ Pause");
+    QPushButton *stopBtn = new QPushButton("⏹️ Stop");
+    
+    playBtn->setStyleSheet(controlBtnStyle);
+    pauseBtn->setStyleSheet(controlBtnStyle);
+    stopBtn->setStyleSheet(controlBtnStyle);
+    
+    controlsLayout->addWidget(playBtn);
+    controlsLayout->addWidget(pauseBtn);
+    controlsLayout->addWidget(stopBtn);
+    controlsLayout->addStretch();
+    
+    rightLayout->addWidget(controlsWidget);
+    layout->addWidget(rightPanel);
+    
+    // Initialise le player
+    player = new QMediaPlayer(window);
+    player->setVideoOutput(videoWidget);
+    
+    // Connexions
+    QObject::connect(playBtn, &QPushButton::clicked, [this]() {
+        if (player->state() != QMediaPlayer::PlayingState) {
+            player->play();
+        }
+    });
+    
+    QObject::connect(pauseBtn, &QPushButton::clicked, [this]() {
+        player->pause();
+    });
+    
+    QObject::connect(stopBtn, &QPushButton::clicked, [this]() {
+        player->stop();
+    });
+    
+    // Gestion des événements de liste
+    QObject::connect(listWidget, &QListWidget::currentItemChanged,
+        [this](QListWidgetItem *current, QListWidgetItem *previous) {
+            Q_UNUSED(previous);
+            if (current) {
+                QString fileName = current->data(Qt::UserRole).toString();
+                if (!fileName.isEmpty()) {
+                    updateFileInfo(fileName);
+                }
+            }
+        });
+
+    QObject::connect(listWidget, &QListWidget::itemActivated,
+        [this](QListWidgetItem *item) {
+            QString fileName = item->data(Qt::UserRole).toString();
+            if (!fileName.isEmpty()) {
+                playSelectedFile(fileName);
+            }
+        });
+    
+    listWidget->installEventFilter(this);
+}
+
+void QtUI::createAudioPage() {
+    audioPage = new QWidget();
+    QVBoxLayout *layout = new QVBoxLayout(audioPage);
+    
+    QLabel *title = new QLabel("Bibliothèque Audio - En cours de développement");
+    title->setAlignment(Qt::AlignCenter);
+    title->setStyleSheet(
+        "QLabel { "
+        "  font-size: 24px; "
+        "  font-weight: bold; "
+        "  color: #60a5fa; "
+        "  padding: 50px; "
+        "}"
+    );
+    layout->addWidget(title);
+}
+
+void QtUI::createImagePage() {
+    imagePage = new QWidget();
+    QVBoxLayout *layout = new QVBoxLayout(imagePage);
+    
+    QLabel *title = new QLabel("Bibliothèque Images - En cours de développement");
+    title->setAlignment(Qt::AlignCenter);
+    title->setStyleSheet(
+        "QLabel { "
+        "  font-size: 24px; "
+        "  font-weight: bold; "
+        "  color: #60a5fa; "
+        "  padding: 50px; "
+        "}"
+    );
+    layout->addWidget(title);
+}
+
+void QtUI::switchToSection(const QString &section) {
+    // Déselectionne tous les boutons
+    videoBtn->setChecked(false);
+    audioBtn->setChecked(false);
+    imageBtn->setChecked(false);
+    
+    // Active le bouton sélectionné et change de page
+    if (section == "video") {
+        videoBtn->setChecked(true);
+        contentStack->setCurrentWidget(videoPage);
+        window->statusBar()->showMessage("Section Vidéo - EpiKodi v2.0");
+    } else if (section == "audio") {
+        audioBtn->setChecked(true);
+        contentStack->setCurrentWidget(audioPage);
+        window->statusBar()->showMessage("Section Audio - EpiKodi v2.0");
+    } else if (section == "image") {
+        imageBtn->setChecked(true);
+        contentStack->setCurrentWidget(imagePage);
+        window->statusBar()->showMessage("Section Images - EpiKodi v2.0");
+    }
+}
+
+void QtUI::applyEpitechTheme() {
+    window->setStyleSheet(
+        "QMainWindow { "
+        "  background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #0f172a, stop:1 #1e293b); "
+        "} "
+        "QWidget { "
+        "  background: transparent; "
+        "  color: white; "
+        "}"
+    );
 }
 
 }
