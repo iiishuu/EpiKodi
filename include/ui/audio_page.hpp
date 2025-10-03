@@ -16,7 +16,7 @@
 #include <functional>
 #include "components/file_explorer.hpp"
 #include "components/media_list.hpp"
-#include "components/media_player.hpp"
+#include "media/media_player.hpp"
 
 namespace epikodi {
     

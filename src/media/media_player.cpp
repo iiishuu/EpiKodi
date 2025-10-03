@@ -5,7 +5,7 @@
 ** media_player - Implémentation du composant lecteur de médias
 */
 
-#include "components/media_player.hpp"
+#include "media/media_player.hpp"
 #include <QFileInfo>
 #include <QPixmap>
 #include <QImageReader>
